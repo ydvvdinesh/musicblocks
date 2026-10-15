@@ -77,6 +77,8 @@ global.NOTENAMES1 = musicUtils.NOTENAMES1;
 global.getInterval = musicUtils.getInterval;
 global.noteIsSolfege = musicUtils.noteIsSolfege;
 global.getSolfege = musicUtils.getSolfege;
+global.noteToObj = musicUtils.noteToObj;
+global.frequencyToPitch = musicUtils.frequencyToPitch;
 global.last = array => (array && array.length > 0 ? array[array.length - 1] : null);
 global.deepClone = value => {
     if (typeof structuredClone === "function") {
@@ -167,6 +169,7 @@ const createActivityMock = turtleMock => {
             },
             inPitchDrumMatrix: false,
             inMatrix: false,
+            dispatchTurtleSignals: jest.fn(),
             clearNoteParams: jest.fn(),
             doStopTurtles: jest.fn(() => {
                 turtleMock.singer._unhighlightTimers = {};
@@ -1603,6 +1606,68 @@ describe("processNote regression behavior", () => {
         singer.partials = [[0, 1, 0]];
         Singer.processNote(activityMock, 4, false, "mockBlk", 0, jest.fn());
         expect(activityMock.errorMsg).not.toHaveBeenCalled();
+    });
+
+    test("updates currentOctave and currentCalculatedOctave correctly for multi-digit and negative octaves", () => {
+        mockGlobals.getNote.mockImplementation((pitch, octave) => [pitch, octave]);
+        singer.suppressOutput = true;
+        singer.oscList[0] = [];
+        singer.embeddedGraphics[0] = [];
+        singer.noteBeat[0] = 1;
+        singer.noteCents[0] = [0];
+        singer.noteHertz[0] = [0];
+        singer.noteDrums[0] = [];
+        singer.noteBeatValues[0] = [4];
+
+        // Standard octave (4)
+        singer.inNoteBlock = [0];
+        singer.notePitches[0] = ["C"];
+        singer.noteOctaves[0] = [4];
+        Singer.processNote(activityMock, 4, false, 0, 0, jest.fn());
+        expect(singer.currentOctave).toBe(4);
+        expect(singer.currentCalculatedOctave).toBe(4);
+
+        // Multi-digit octave (10)
+        singer.inNoteBlock = [0];
+        singer.notePitches[0] = ["C"];
+        singer.noteOctaves[0] = [10];
+        Singer.processNote(activityMock, 4, false, 0, 0, jest.fn());
+        expect(singer.currentOctave).toBe(10);
+        expect(singer.currentCalculatedOctave).toBe(10);
+
+        // Multi-digit octave with accidental (F#10)
+        singer.inNoteBlock = [0];
+        singer.notePitches[0] = ["F#"];
+        singer.noteOctaves[0] = [10];
+        Singer.processNote(activityMock, 4, false, 0, 0, jest.fn());
+        expect(singer.currentOctave).toBe(10);
+        expect(singer.currentCalculatedOctave).toBe(10);
+
+        // Negative octave (-1)
+        singer.inNoteBlock = [0];
+        singer.notePitches[0] = ["D"];
+        singer.noteOctaves[0] = [-1];
+        Singer.processNote(activityMock, 4, false, 0, 0, jest.fn());
+        expect(singer.currentOctave).toBe(-1);
+        expect(singer.currentCalculatedOctave).toBe(-1);
+
+        // Zero octave (0)
+        singer.inNoteBlock = [0];
+        singer.notePitches[0] = ["C"];
+        singer.noteOctaves[0] = [0];
+        Singer.processNote(activityMock, 4, false, 0, 0, jest.fn());
+        expect(singer.currentOctave).toBe(0);
+        expect(singer.currentCalculatedOctave).toBe(0);
+
+        // Numeric frequency note (e.g. from cents offset)
+        singer.inNoteBlock = [0];
+        singer.notePitches[0] = ["A"];
+        singer.noteOctaves[0] = [4];
+        singer.noteCents[0] = [14];
+        singer.noteHertz[0] = [440];
+        Singer.processNote(activityMock, 4, false, 0, 0, jest.fn());
+        expect(singer.currentOctave).toBe(4);
+        expect(singer.currentCalculatedOctave).toBe(4);
     });
 });
 
