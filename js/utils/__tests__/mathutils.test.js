@@ -337,6 +337,29 @@ describe("MathUtility", () => {
             // Symmetric: undefined on the left-hand side must also throw.
             expect(() => MathUtility.doPlus(undefined, "5")).toThrow("NanError");
         });
+
+        test("throws NanError when a numeric operand is null", () => {
+            expect(() => MathUtility.doPlus(null, 5)).toThrow("NanError");
+            expect(() => MathUtility.doPlus(5, null)).toThrow("NanError");
+            expect(() => MathUtility.doPlus(null, null)).toThrow("NanError");
+        });
+
+        test("throws NanError when a numeric operand is undefined", () => {
+            expect(() => MathUtility.doPlus(undefined, 5)).toThrow("NanError");
+            expect(() => MathUtility.doPlus(5, undefined)).toThrow("NanError");
+        });
+
+        test("throws NanError when an operand is NaN", () => {
+            expect(() => MathUtility.doPlus(NaN, 5)).toThrow("NanError");
+            expect(() => MathUtility.doPlus(5, NaN)).toThrow("NanError");
+            expect(() => MathUtility.doPlus(NaN, "5")).toThrow("NanError");
+            expect(() => MathUtility.doPlus("5", NaN)).toThrow("NanError");
+        });
+
+        test("throws NanError for non-numeric objects and arrays in numeric branch", () => {
+            expect(() => MathUtility.doPlus([], 5)).toThrow("NanError");
+            expect(() => MathUtility.doPlus(5, {})).toThrow("NanError");
+        });
     });
 
     describe("doMinus", () => {
