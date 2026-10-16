@@ -1508,6 +1508,13 @@ class Logo {
                 this.deps.utils.doStopVideoCam(this.cameraID, this.setCameraID);
             }
         }
+
+        if (typeof document !== "undefined") {
+            const stopBtn = document.getElementById("stop");
+            if (stopBtn) {
+                stopBtn.style.display = "none";
+            }
+        }
     }
 
     /**

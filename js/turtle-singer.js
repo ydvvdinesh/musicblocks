@@ -308,11 +308,6 @@ class Singer {
             }
         });
         this.activeVoices.clear();
-
-        const stopBtn = document.getElementById("stop");
-        if (stopBtn) {
-            stopBtn.style.display = "none";
-        }
     }
 
     // ========= Class variables ==============================================

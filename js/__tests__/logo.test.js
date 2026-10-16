@@ -1745,6 +1745,15 @@ describe("Logo runLogoCommands", () => {
         expect(turtle0.listeners).toEqual({ clickListener: persistentListener });
     });
 
+    test("hides global stop button on cleanup completion if present", () => {
+        const stopMock = { style: { display: "inline-block" } };
+        document.getElementById.mockReturnValue(stopMock);
+
+        logo._synthsInitialized = true;
+        logo._cleanupAfterCompletion();
+        expect(stopMock.style.display).toBe("none");
+    });
+
     describe("performance instrumentation", () => {
         let savedTracker;
         let savedDebugFlag;

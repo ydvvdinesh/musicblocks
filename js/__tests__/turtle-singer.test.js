@@ -963,6 +963,20 @@ describe("killAllVoices lifecycle safety", () => {
         expect(() => singer.killAllVoices()).not.toThrow();
         expect(singer.activeVoices.size).toBe(0);
     });
+
+    test("should not hide the global stop button when voices are cleared", () => {
+        const stopBtn = document.createElement("button");
+        stopBtn.id = "stop";
+        stopBtn.style.display = "inline-block";
+        document.body.appendChild(stopBtn);
+
+        try {
+            singer.killAllVoices();
+            expect(stopBtn.style.display).toBe("inline-block");
+        } finally {
+            document.body.removeChild(stopBtn);
+        }
+    });
 });
 
 describe("numberOfNotes — state restoration and tally logic", () => {
