@@ -418,6 +418,52 @@ describe("ModeWidget", () => {
         expect(modeWidget._selectedNotes[1]).toBe(false);
     });
 
+    describe("_save", () => {
+        test("does not save or generate blocks when mode is empty (#10198)", () => {
+            modeWidget.blocks.loadNewBlocks = jest.fn();
+            modeWidget._selectedNotes = Array(12).fill(false);
+            const setTimeoutSpy = jest.spyOn(modeWidget, "_setTimeout");
+            mockActivity.textMsg.mockClear();
+
+            modeWidget._save();
+
+            expect(modeWidget.blocks.loadNewBlocks).not.toHaveBeenCalled();
+            expect(mockActivity.textMsg).not.toHaveBeenCalled();
+            expect(setTimeoutSpy).not.toHaveBeenCalled();
+            setTimeoutSpy.mockRestore();
+        });
+
+        test("generates action block and schedules definemode block when mode is non-empty", () => {
+            modeWidget.blocks.loadNewBlocks = jest.fn();
+            modeWidget._selectedNotes = [
+                true,
+                false,
+                true,
+                false,
+                true,
+                true,
+                false,
+                true,
+                false,
+                true,
+                false,
+                true
+            ];
+            const setTimeoutSpy = jest.spyOn(modeWidget, "_setTimeout");
+            mockActivity.textMsg.mockClear();
+
+            modeWidget._save();
+
+            expect(modeWidget.blocks.loadNewBlocks).toHaveBeenCalledTimes(1);
+            expect(mockActivity.textMsg).toHaveBeenCalledWith(
+                _("New action block generated."),
+                3000
+            );
+            expect(setTimeoutSpy).toHaveBeenCalledWith(expect.any(Function), 2000);
+            setTimeoutSpy.mockRestore();
+        });
+    });
+
     test("should trigger synth when playing a note", () => {
         modeWidget._playNote(0);
 
