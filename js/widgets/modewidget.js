@@ -1736,6 +1736,10 @@ class ModeWidget {
     }
 
     _save() {
+        if (!this._selectedNotes || !this._selectedNotes.some(Boolean)) {
+            return;
+        }
+
         const n = this._activeEDO;
         const label = this._modeLabelCell.textContent;
         const modeName = label && label !== "\u00a0" ? label : _("custom");
